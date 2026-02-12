@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Hug Day Journey 🤗💖</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1:#12051a;
+      --bg2:#5c0f37;
+      --bg3:#ff4d9a;
+
+      --stroke: rgba(255,255,255,.18);
+      --glass: rgba(255,255,255,.10);
+
+      --txt: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+
+      --pink:#ff2f6e;
+      --gold:#ffd36a;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: var(--txt);
+      overflow:hidden;
+      background:
+        radial-gradient(1200px 800px at 25% 25%, rgba(255,211,106,.16), transparent 60%),
+        radial-gradient(1100px 750px at 75% 30%, rgba(255,47,110,.18), transparent 65%),
+        linear-gradient(120deg, var(--bg1), var(--bg2), var(--bg3));
+    }
+
+    /* Floating hearts */
+    .float-layer{ position:fixed; inset:0; pointer-events:none; overflow:hidden; }
+    .float{
+      position:absolute; opacity:0;
+      animation: floatUp linear forwards;
+      text-shadow: 0 0 18px rgba(255,211,106,.18), 0 0 24px rgba(255,47,110,.16);
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,.25));
+    }
+    @keyframes floatUp{
+      0%{ transform: translateY(40px) scale(.85); opacity:0;}
+      12%{ opacity:.8; }
+      100%{ transform: translateY(-120vh) scale(1.25); opacity:0; }
+    }
+
+    /* Screens */
+    .screen{
+      position:fixed; inset:0;
+      display:none;
+      padding: 18px;
+      overflow:auto;
+    }
+    .screen.active{ display:block; }
+    .wrap{
+      width:min(1100px, 92vw);
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .glass{
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.08));
+      border:1px solid var(--stroke);
+      border-radius: 28px;
+      padding: 22px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.38);
+      backdrop-filter: blur(12px);
+    }
+
+    .top{
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.18);
+      font-weight: 900;
+      letter-spacing:.2px;
+    }
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: var(--gold);
+      box-shadow: 0 0 22px rgba(255,211,106,.55);
+    }
+
+    h1{
+      margin: 10px 0 6px;
+      font-size: clamp(28px, 3.8vw, 52px);
+      letter-spacing: -0.7px;
+    }
+    .sub{
+      margin:0 0 14px;
+      color: var(--muted);
+      font-weight: 650;
+      line-height: 1.55;
+      max-width: 80ch;
+    }
+
+    .btn{
+      cursor:pointer;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      box-shadow: 0 16px 40px rgba(0,0,0,.20);
+      user-select:none;
+      transition: transform .15s ease, filter .15s ease;
+      width:max-content;
+    }
+    .btn:hover{ transform: translateY(-2px); filter: brightness(1.07); }
+    .btn.primary{
+      background: linear-gradient(180deg, #ff2f6e, #c9144c);
+      border-color: rgba(255,255,255,.22);
+    }
+
+    /* ===================== SCREEN 1: Distance Hug ===================== */
+    .sim{
+      position:relative;
+      border-radius: 26px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.14);
+      overflow:hidden;
+      height: min(560px, 64vh);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+    }
+    @media (max-height: 750px){
+      .sim{ height: min(520px, 62vh); }
+    }
+    .sim::before{
+      content:"";
+      position:absolute; inset:-140px;
+      background:
+        radial-gradient(320px 240px at 30% 25%, rgba(255,211,106,.16), transparent 60%),
+        radial-gradient(380px 280px at 70% 40%, rgba(255,47,110,.18), transparent 65%),
+        radial-gradient(400px 320px at 50% 95%, rgba(255,255,255,.10), transparent 70%);
+      filter: blur(8px);
+      opacity:.95;
+      pointer-events:none;
+    }
+
+    canvas{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+
+    .stage{
+      position:absolute; inset:0;
+      display:grid; place-items:center;
+      transition: transform .9s cubic-bezier(.2,.9,.2,1), filter .9s cubic-bezier(.2,.9,.2,1);
+    }
+    .stage.hugging{ transform: scale(1.06); filter: saturate(1.06) brightness(1.03); }
+    .stage.squeeze{ transform: scale(1.10); filter: saturate(1.10) brightness(1.05); }
+
+    .vignette{
+      position:absolute; inset:-2px;
+      background: radial-gradient(closest-side, transparent 58%, rgba(0,0,0,.45));
+      opacity:.55;
+      pointer-events:none;
+      transition: opacity .9s ease;
+    }
+
+    .overlayText{
+      position:absolute;
+      left:50%; top: 12%;
+      transform: translateX(-50%);
+      text-align:center;
+      width: min(92%, 820px);
+      pointer-events:none;
+    }
+    .overlayText .line1{
+      font-weight: 900;
+      font-size: clamp(16px, 2.2vw, 22px);
+      letter-spacing:-.2px;
+      text-shadow: 0 18px 60px rgba(0,0,0,.45);
+    }
+    .overlayText .line2{
+      margin-top: 8px;
+      color: rgba(255,255,255,.78);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .sil{
+      position:absolute;
+      bottom: 22px;
+      width: 260px; height: 420px;
+      border-radius: 999px 999px 40px 40px;
+      filter: drop-shadow(0 22px 40px rgba(0,0,0,.45));
+      opacity:.95;
+      transition: transform 1.2s cubic-bezier(.2,.9,.2,1);
+    }
+    .sil.left{
+      left: 6%;
+      transform: translateX(var(--lx, 0px));
+      background:
+        radial-gradient(110px 110px at 50% 16%, rgba(255,255,255,.14), transparent 60%),
+        radial-gradient(160px 160px at 45% 38%, rgba(255,211,106,.10), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.25)),
+        radial-gradient(240px 200px at 50% 85%, rgba(255,255,255,.06), transparent 65%);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(6px);
+    }
+    .sil.right{
+      right: 6%;
+      transform: translateX(var(--rx, 0px));
+      background:
+        radial-gradient(110px 110px at 50% 16%, rgba(255,255,255,.14), transparent 60%),
+        radial-gradient(160px 160px at 55% 38%, rgba(255,47,110,.10), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.25)),
+        radial-gradient(240px 200px at 50% 85%, rgba(255,255,255,.06), transparent 65%);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(6px);
+    }
+    .head{
+      position:absolute;
+      top: -42px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px; height: 160px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.05);
+    }
+    .arm{
+      position:absolute;
+      top: 160px;
+      width: 190px;
+      height: 84px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.04);
+      opacity:.9;
+      transition: transform 1.0s cubic-bezier(.2,.9,.2,1), opacity 1s ease;
+    }
+    .left .arm.a1{ left: -40px; transform: rotate(10deg) translateX(0); }
+    .left .arm.a2{ right: -40px; transform: rotate(-14deg) translateX(0); opacity:.75;}
+    .right .arm.a1{ left: -40px; transform: rotate(14deg) translateX(0); }
+    .right .arm.a2{ right: -40px; transform: rotate(-10deg) translateX(0); opacity:.75;}
+
+    .sim.hug .left .arm.a2{ transform: rotate(-22deg) translateX(40px); opacity:.95; }
+    .sim.hug .right .arm.a1{ transform: rotate(22deg) translateX(-40px); opacity:.95; }
+
+    .distance{
+      position:absolute; left: 50%; top: 54%;
+      transform: translate(-50%,-50%);
+      width: min(78%, 820px);
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.30), transparent);
+      opacity:.55;
+      transition: opacity .9s ease;
+    }
+    .sim.hug .distance{ opacity:0; }
+
+    .core{
+      position:absolute; left:50%; top:56%;
+      transform: translate(-50%,-50%);
+      width: 14px; height: 14px;
+      border-radius: 999px;
+      background: rgba(255,211,106,.95);
+      box-shadow: 0 0 26px rgba(255,211,106,.45);
+      opacity:0;
+      transition: opacity .7s ease;
+    }
+    .sim.hug .core{ opacity:1; animation: pulse 1.15s ease-in-out infinite; }
+    @keyframes pulse{
+      0%{ box-shadow: 0 0 0 0 rgba(255,47,110,.00), 0 0 26px rgba(255,211,106,.45); transform: translate(-50%,-50%) scale(1); }
+      50%{ box-shadow: 0 0 0 26px rgba(255,47,110,.16), 0 0 40px rgba(255,211,106,.40); transform: translate(-50%,-50%) scale(1.18); }
+      100%{ box-shadow: 0 0 0 0 rgba(255,47,110,.00), 0 0 26px rgba(255,211,106,.45); transform: translate(-50%,-50%) scale(1); }
+    }
+
+    .hold-ring{
+      position:absolute;
+      left:50%; top:16%;
+      transform: translateX(-50%);
+      width: 260px; height: 260px;
+      border-radius: 999px;
+      display:grid; place-items:center;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity .2s ease;
+      filter: drop-shadow(0 0 26px rgba(255,47,110,.18));
+    }
+    .hold-ring.show{ opacity:1; }
+    .ring{
+      width:100%; height:100%;
+      border-radius:999px;
+      background: conic-gradient(var(--pink) var(--p,0%), rgba(255,255,255,.12) 0);
+      mask: radial-gradient(circle, transparent 62%, #000 63%);
+      -webkit-mask: radial-gradient(circle, transparent 62%, #000 63%);
+    }
+    .ring-label{
+      position:absolute;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.16);
+      font-weight: 900;
+    }
+
+    /* Big center modal (no cut) */
+    .modal{
+      position:absolute; inset:0;
+      display:grid;
+      place-items:center;
+      background: rgba(0,0,0,.58);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .45s ease;
+      padding: 16px;
+    }
+    .modal.show{ opacity:1; pointer-events:auto; }
+    .modalCard{
+      width:min(720px, 92vw);
+      border-radius: 26px;
+      border:1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.08));
+      box-shadow: 0 30px 90px rgba(0,0,0,.45);
+      backdrop-filter: blur(12px);
+      padding: 18px;
+      text-align:center;
+    }
+    .modalCard h2{
+      margin: 6px 0 8px;
+      font-size: clamp(22px, 3vw, 36px);
+      letter-spacing:-.4px;
+    }
+    .script{
+      font-family: "Great Vibes", cursive;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.25;
+      margin: 8px 0 12px;
+      color: rgba(255,255,255,.94);
+    }
+    .countpill{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.18);
+      font-weight: 900;
+      margin-top: 10px;
+    }
+
+    /* ===================== SCREEN 2: Heartbeat Sync ===================== */
+    .hbStage{
+      position:relative;
+      border-radius: 26px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.14);
+      overflow:hidden;
+      height: min(560px, 64vh);
+      display:grid;
+      place-items:center;
+    }
+    .hbStage::before{
+      content:"";
+      position:absolute; inset:-140px;
+      background:
+        radial-gradient(360px 260px at 50% 35%, rgba(255,47,110,.20), transparent 65%),
+        radial-gradient(360px 280px at 50% 85%, rgba(255,211,106,.14), transparent 70%);
+      filter: blur(10px);
+      opacity:.95;
+      pointer-events:none;
+    }
+
+    .hbBox{
+      width:min(760px, 94%);
+      text-align:center;
+      padding: 18px;
+    }
+
+    .finger{
+      width: min(240px, 56vw);
+      aspect-ratio: 1/1;
+      margin: 18px auto 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.20);
+      background: rgba(0,0,0,.18);
+      box-shadow: 0 26px 80px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.06);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      user-select:none;
+      position:relative;
+      overflow:hidden;
+      transform: translateZ(0);
+    }
+    .finger .icon{
+      font-size: clamp(46px, 7vw, 68px);
+      filter: drop-shadow(0 14px 30px rgba(0,0,0,.25));
+    }
+    .finger .hint{
+      position:absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 900;
+      color: rgba(255,255,255,.82);
+      font-size: 13px;
+      opacity:.9;
+    }
+
+    .pulseRing{
+      position:absolute; inset: -20px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,47,110,.0);
+      opacity:0;
+      pointer-events:none;
+    }
+    .finger.pulsing .pulseRing{
+      opacity:1;
+      animation: hbPulse 1.05s ease-in-out infinite;
+      border-color: rgba(255,47,110,.55);
+      box-shadow: 0 0 0 0 rgba(255,47,110,.0);
+    }
+    @keyframes hbPulse{
+      0%{ transform: scale(.86); opacity:.75; box-shadow: 0 0 0 0 rgba(255,47,110,.0); }
+      60%{ transform: scale(1.08); opacity:.95; box-shadow: 0 0 0 26px rgba(255,47,110,.12); }
+      100%{ transform: scale(1.16); opacity:.0; box-shadow: 0 0 0 46px rgba(255,47,110,.00); }
+    }
+
+    .hbLine{
+      font-weight: 900;
+      font-size: clamp(18px, 2.6vw, 28px);
+      letter-spacing:-.3px;
+      margin-top: 6px;
+    }
+    .hbSub{
+      margin-top: 8px;
+      color: rgba(255,255,255,.78);
+      font-weight: 650;
+      line-height:1.5;
+    }
+
+    .syncBar{
+      width: min(520px, 92%);
+      height: 12px;
+      border-radius: 999px;
+      margin: 16px auto 0;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.16);
+      overflow:hidden;
+    }
+    .syncFill{
+      height:100%;
+      width:0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ff2f6e, #ffd36a, #ff4d9a);
+      transition: width .1s linear;
+    }
+
+    /* ===================== SCREEN 3: Future Page ===================== */
+    .futureBg{
+      position:relative;
+      border-radius: 28px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.14);
+      box-shadow: 0 30px 90px rgba(0,0,0,.36);
+    }
+    .futureBg::before{
+      content:"";
+      position:absolute; inset:-60px;
+      background:
+        radial-gradient(520px 380px at 30% 30%, rgba(255,47,110,.20), transparent 65%),
+        radial-gradient(520px 380px at 70% 40%, rgba(255,211,106,.14), transparent 70%),
+        radial-gradient(520px 420px at 50% 95%, rgba(255,255,255,.10), transparent 75%);
+      filter: blur(14px);
+      opacity:.95;
+      pointer-events:none;
+    }
+    .futureInner{
+      position:relative;
+      padding: 18px;
+    }
+    .futureGrid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr; /* photo | letter */
+      gap: 14px;
+      margin-top: 12px;
+    }
+    @media (max-width: 920px){
+      .futureGrid{ grid-template-columns: 1fr; }
+    }
+    .card{
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.07));
+      box-shadow: 0 26px 80px rgba(0,0,0,.30);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .cardIn{ padding: 16px; }
+
+    .photoFrame{
+      border-radius: 22px;
+      padding: 10px;
+      background: linear-gradient(135deg, #ff2f6e, #ffd36a, #ff4d7d);
+      background-size: 200% 200%;
+      animation: glowMove 4s ease infinite;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 0 28px rgba(255,47,110,.30), 0 0 40px rgba(255,211,106,.20);
+    }
+    @keyframes glowMove{
+      0%{background-position:0% 50%;}
+      50%{background-position:100% 50%;}
+      100%{background-position:0% 50%;}
+    }
+    .photoBox{
+      width:100%;
+      height: 360px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.16);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+    }
+    .photoBox img{
+      width:100%;
+      height:100%;
+      object-fit: contain; /* ✅ never crop */
+      display:block;
+    }
+    @media (max-width: 920px){
+      .photoBox{ height: 300px; }
+    }
+
+    .letter{
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      padding: 14px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.25);
+    }
+    .letter h3{
+      margin: 0 0 8px;
+      font-weight: 900;
+      letter-spacing: -.2px;
+    }
+    .letterText{
+      font-family: "Great Vibes", cursive;
+      font-size: 34px;
+      line-height: 1.35;
+      white-space: pre-wrap;
+      color: rgba(255,255,255,.92);
+      min-height: 240px;
+    }
+    .cursor{ display:inline-block; width:10px; animation: blink .9s infinite; }
+    @keyframes blink{ 0%,49%{opacity:1} 50%,100%{opacity:0} }
+  </style>
+</head>
+
+<body>
+  <div class="float-layer" id="floatLayer" aria-hidden="true"></div>
+
+  <!-- SCREEN 1 -->
+  <section class="screen active" id="s1">
+    <div class="wrap">
+      <div class="glass">
+        <div class="top">
+          <div class="pill"><span class="dot"></span> Hug Day Journey 🤗</div>
+          <div class="pill">For <b>Nisuuu</b> 💖 — From <b>Pranay</b></div>
+        </div>
+
+        <h1>Hold to send a REAL hug 💞</h1>
+        <p class="sub">Press & hold inside the simulator. The longer you hold, the tighter the hug feels.</p>
+
+        <div class="sim" id="sim">
+          <canvas id="fx"></canvas>
+
+          <div class="stage" id="stage">
+            <div class="overlayText">
+              <div class="line1" id="titleLine">Press & hold anywhere to hug…</div>
+              <div class="line2" id="subLine">Hold longer → tighter hug → more glow ✨</div>
+            </div>
+
+            <div class="hold-ring" id="holdRing">
+              <div class="ring" id="ring"></div>
+              <div class="ring-label" id="ringLabel">Hug strength: 0%</div>
+            </div>
+
+            <div class="distance"></div>
+            <div class="core"></div>
+
+            <div class="sil left" id="leftSil">
+              <div class="head"></div>
+              <div class="arm a1"></div>
+              <div class="arm a2"></div>
+            </div>
+
+            <div class="sil right" id="rightSil">
+              <div class="head"></div>
+              <div class="arm a1"></div>
+              <div class="arm a2"></div>
+            </div>
+          </div>
+
+          <div class="vignette"></div>
+
+          <!-- Modal after hug -->
+          <div class="modal" id="hugModal">
+            <div class="modalCard">
+              <h2>Hug delivered 🤗💖</h2>
+              <div class="script">Even if miles apart… this hug is real.</div>
+              <div style="color: rgba(255,255,255,.78); font-weight:700; line-height:1.45;">
+                Next: Heartbeat Sync Hug 💓
+              </div>
+              <div class="countpill">Next screen in <span id="next1">5</span>s</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+          <div class="btn" id="reset1">Reset 🔄</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 2 -->
+  <section class="screen" id="s2">
+    <div class="wrap">
+      <div class="glass">
+        <div class="top">
+          <div class="pill"><span class="dot"></span> Heartbeat Sync Hug 💓</div>
+          <div class="pill">Nisuuu 💖</div>
+        </div>
+
+        <h1>Place your finger here 🫶</h1>
+        <p class="sub">Press and hold… pulse will appear… then it syncs.</p>
+
+        <div class="hbStage">
+          <div class="hbBox">
+            <div class="hbLine" id="hbLine">“Place your finger here.”</div>
+            <div class="hbSub" id="hbSub">Press & hold the circle to start the heartbeat 💗</div>
+
+            <div class="finger" id="finger">
+              <div class="pulseRing"></div>
+              <div class="icon">💓</div>
+              <div class="hint">Press & hold</div>
+            </div>
+
+            <div class="syncBar">
+              <div class="syncFill" id="syncFill"></div>
+            </div>
+
+            <div class="countpill" id="next2Wrap" style="display:none;">
+              Next screen in <span id="next2">5</span>s
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+          <div class="btn" id="back2">Back ⬅</div>
+          <div class="btn" id="reset2">Reset 🔄</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 3 -->
+  <section class="screen" id="s3">
+    <div class="wrap">
+      <div class="futureBg">
+        <div class="futureInner">
+          <div class="top">
+            <div class="pill"><span class="dot"></span> Future Hug Preview 💖</div>
+            <div class="pill">For <b>Nisuuu</b> 🤗</div>
+          </div>
+
+          <h1>Now… imagine this hug in real life 🫶</h1>
+          <p class="sub">A romantic page with your photo and a handwritten letter 💌</p>
+
+          <div class="futureGrid">
+            <!-- Photo -->
+            <div class="card">
+              <div class="cardIn">
+                <div class="pill" style="width:max-content;"><span class="dot"></span> Our photo 💞</div>
+                <div style="height:10px"></div>
+                <div class="photoFrame">
+                  <div class="photoBox">
+                    <img src="photo.png" alt="Your photo" onerror="this.src='photo.jpg';" />
+                  </div>
+                </div>
+                <div style="margin-top:10px; color:rgba(255,255,255,.75); font-weight:700;">
+                  ✅ No crop (full photo visible)
+                </div>
+              </div>
+            </div>
+
+            <!-- Letter -->
+            <div class="card">
+              <div class="cardIn">
+                <div class="pill" style="width:max-content;"><span class="dot"></span> Love letter 💌</div>
+                <div style="height:10px"></div>
+
+                <div class="letter">
+                  <h3>For my jaan 💖</h3>
+                  <div class="letterText" id="futureLetter"></div>
+                </div>
+
+                <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+                  <div class="btn primary" id="retype">Replay typing ✍️</div>
+                  <div class="btn" id="back3">Back ⬅</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+<script>
+  /* Floating background */
+  const floatLayer = document.getElementById('floatLayer');
+  const floatEmojis = ["🤗","🫶","💖","💕","✨","🌟","💞","😘"];
+  function spawnFloat(){
+    const el = document.createElement('div');
+    el.className = 'float';
+    el.textContent = floatEmojis[Math.floor(Math.random()*floatEmojis.length)];
+    el.style.left = (Math.random()*100) + 'vw';
+    el.style.bottom = (-20 - Math.random()*30) + 'px';
+    el.style.fontSize = (14 + Math.random()*26) + 'px';
+    el.style.animationDuration = (6 + Math.random()*7) + 's';
+    el.style.animationDelay = (Math.random()*0.6) + 's';
+    floatLayer.appendChild(el);
+    setTimeout(()=>el.remove(), 14000);
+  }
+  setInterval(spawnFloat, 220);
+
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function vibrate(pattern){
+    try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){}
+  }
+
+  /* ===================== Screen 1: Distance Hug ===================== */
+  const sim = document.getElementById('sim');
+  const stage = document.getElementById('stage');
+  const leftSil = document.getElementById('leftSil');
+  const rightSil = document.getElementById('rightSil');
+  const holdRing = document.getElementById('holdRing');
+  const ring = document.getElementById('ring');
+  const ringLabel = document.getElementById('ringLabel');
+  const titleLine = document.getElementById('titleLine');
+  const subLine = document.getElementById('subLine');
+  const hugModal = document.getElementById('hugModal');
+  const next1 = document.getElementById('next1');
+  const reset1 = document.getElementById('reset1');
+
+  const HOLD_MS = 1700;
+  let holding=false, holdStart=0, raf=null, done=false;
+
+  function setRingProgress(pct){ ring.style.setProperty('--p', pct + '%'); }
+
+  function setDistance(pct){
+    const max = 220;
+    const dx = (pct/100) * max;
+    leftSil.style.setProperty('--lx', dx + 'px');
+    rightSil.style.setProperty('--rx', (-dx) + 'px');
+
+    if(pct > 15){
+      stage.classList.add('hugging');
+      sim.classList.add('hug');
+    }else{
+      stage.classList.remove('hugging');
+      sim.classList.remove('hug');
+    }
+
+    titleLine.textContent = `Hug strength: ${Math.round(pct)}%`;
+    subLine.textContent = pct < 100 ? "Hold longer → tighter hug → more glow ✨" : "Perfect. Now… squeeze 🤗";
+    ringLabel.textContent = `Hug strength: ${Math.round(pct)}%`;
+  }
+
+  function startHold(){
+    if(done || holding) return;
+    holding=true;
+    holdStart=performance.now();
+    holdRing.classList.add('show');
+    setRingProgress(0);
+    setDistance(0);
+    vibrate(20);
+    burst(10);
+
+    const tick = (t)=>{
+      if(!holding) return;
+      const pct = Math.min(100, ((t-holdStart)/HOLD_MS)*100);
+      setRingProgress(pct);
+      setDistance(pct);
+      if(pct > 30 && Math.random() < 0.14) spawnParticle();
+      if(pct > 65 && Math.random() < 0.20) spawnParticle();
+
+      if(pct>=100){
+        holding=false;
+        holdRing.classList.remove('show');
+        completeHug();
+        return;
+      }
+      raf=requestAnimationFrame(tick);
+    };
+    raf=requestAnimationFrame(tick);
+  }
+
+  function endHold(){
+    if(!holding) return;
+    holding=false;
+    if(raf) cancelAnimationFrame(raf);
+    holdRing.classList.remove('show');
+
+    const current = parseFloat(getComputedStyle(ring).getPropertyValue('--p')) || 0;
+    const backTo = Math.max(0, current - 28);
+    setRingProgress(backTo);
+    setDistance(backTo);
+  }
+
+  function countdownToNext(el, seconds, onDone){
+    let s = seconds;
+    el.textContent = String(s);
+    const t = setInterval(()=>{
+      s--;
+      el.textContent = String(s);
+      if(s<=0){
+        clearInterval(t);
+        onDone();
+      }
+    },1000);
+    return ()=>clearInterval(t);
+  }
+
+  function completeHug(){
+    done=true;
+    stage.classList.add('hugging');
+    sim.classList.add('hug');
+    stage.classList.add('squeeze');
+    vibrate([40,40,40]);
+    burst(26);
+    setTimeout(()=> stage.classList.remove('squeeze'), 540);
+
+    // show modal then go to screen2 after 5s
+    hugModal.classList.add('show');
+    countdownToNext(next1, 5, ()=>{
+      hugModal.classList.remove('show');
+      showScreen('s2');
+    });
+  }
+
+  function resetDistanceHug(){
+    done=false;
+    holding=false;
+    if(raf) cancelAnimationFrame(raf);
+    holdRing.classList.remove('show');
+    hugModal.classList.remove('show');
+    stage.classList.remove('hugging','squeeze');
+    sim.classList.remove('hug');
+    setRingProgress(0);
+    setDistance(0);
+    titleLine.textContent = "Press & hold anywhere to hug…";
+    subLine.textContent = "Hold longer → tighter hug → more glow ✨";
+    ringLabel.textContent = "Hug strength: 0%";
+    clearParticles();
+  }
+
+  sim.addEventListener('pointerdown', (e)=>{ e.preventDefault(); startHold(); });
+  window.addEventListener('pointerup', endHold);
+  window.addEventListener('pointercancel', endHold);
+  reset1.addEventListener('click', resetDistanceHug);
+
+  /* ===================== Screen 2: Heartbeat Sync ===================== */
+  const finger = document.getElementById('finger');
+  const hbLine = document.getElementById('hbLine');
+  const hbSub = document.getElementById('hbSub');
+  const syncFill = document.getElementById('syncFill');
+  const next2Wrap = document.getElementById('next2Wrap');
+  const next2 = document.getElementById('next2');
+  const back2 = document.getElementById('back2');
+  const reset2 = document.getElementById('reset2');
+
+  let hbHolding=false, hbStart=0, hbRAF=null, hbDone=false;
+  const HB_MS = 1600;
+
+  function hbReset(){
+    hbHolding=false; hbDone=false;
+    if(hbRAF) cancelAnimationFrame(hbRAF);
+    finger.classList.remove('pulsing');
+    syncFill.style.width = '0%';
+    hbLine.textContent = "“Place your finger here.”";
+    hbSub.textContent = "Press & hold the circle to start the heartbeat 💗";
+    next2Wrap.style.display = 'none';
+  }
+
+  function hbStartHold(){
+    if(hbDone || hbHolding) return;
+    hbHolding=true;
+    hbStart=performance.now();
+    finger.classList.add('pulsing');
+    vibrate(15);
+
+    const tick=(t)=>{
+      if(!hbHolding) return;
+      const pct = Math.min(100, ((t-hbStart)/HB_MS)*100);
+      syncFill.style.width = pct + '%';
+
+      if(pct>=100){
+        hbHolding=false;
+        hbDone=true;
+        finger.classList.remove('pulsing');
+        hbLine.textContent = "Our hearts hug even when we don’t. 💓";
+        hbSub.textContent = "Synced. Next: Future Hug Preview 💖";
+        next2Wrap.style.display = 'inline-flex';
+        countdownToNext(next2, 5, ()=>{
+          showScreen('s3');
+          startFutureTyping();
+        });
+        vibrate([25,25,25]);
+        return;
+      }
+      hbRAF=requestAnimationFrame(tick);
+    };
+    hbRAF=requestAnimationFrame(tick);
+  }
+
+  function hbEndHold(){
+    if(!hbHolding) return;
+    hbHolding=false;
+    if(hbRAF) cancelAnimationFrame(hbRAF);
+    finger.classList.remove('pulsing');
+    // soften rollback
+    const w = parseFloat(syncFill.style.width) || 0;
+    const backTo = Math.max(0, w - 25);
+    syncFill.style.width = backTo + '%';
+  }
+
+  finger.addEventListener('pointerdown', (e)=>{ e.preventDefault(); hbStartHold(); });
+  window.addEventListener('pointerup', hbEndHold);
+  window.addEventListener('pointercancel', hbEndHold);
+
+  back2.addEventListener('click', ()=>{
+    hbReset();
+    showScreen('s1');
+  });
+  reset2.addEventListener('click', hbReset);
+
+  /* ===================== Screen 3: Future Letter (typing) ===================== */
+  const futureLetter = document.getElementById('futureLetter');
+  const retype = document.getElementById('retype');
+  const back3 = document.getElementById('back3');
+
+  const FUTURE_TEXT =
+`happy hug day jaan  ,aao pehle hug karo ek tight walaa , i love you so much , kass tum mere pass hoti to tumko ekdam apne andar sama lete, wese to apna to har roz  hi hug day hoga, kyoki yeh humara rule hoga har din ek dusre  ko  hug karna , like  office jane se pehle , office se aane ke baad, sone se pehle , sone ke baad, sote hue  v , ek dusre  ko  hug karna  , cuddle karna, hai ki nhi, boloooo na my sonaaaaa, i love you so much , humko aaj v yaad hai apna pehla hug  , usse pehle ek baar hug liye the par tum nhi karne di thi , par farewell  wale din proper hug kiye the 15 feb 2024, i love you so much jaan ,kass hum tumko wese hi wapas hug kar paye wapas , i love you so much jaaaan , you are my comfort zone , my peace and my safe place, you are my jaan`;
+
+  let typingTimer=null;
+
+  function stopTyping(){
+    if(typingTimer) clearInterval(typingTimer);
+    typingTimer=null;
+  }
+
+  function typeText(el, text, speed=14){
+    stopTyping();
+    el.innerHTML="";
+    const cursor=document.createElement('span');
+    cursor.className='cursor';
+    cursor.textContent="▍";
+    el.appendChild(cursor);
+
+    let i=0;
+    typingTimer=setInterval(()=>{
+      cursor.remove();
+      el.textContent += text[i] || "";
+      el.appendChild(cursor);
+      i++;
+      if(i>text.length){
+        stopTyping();
+        cursor.remove();
+      }
+    }, speed);
+  }
+
+  function startFutureTyping(){
+    typeText(futureLetter, FUTURE_TEXT, 14);
+  }
+
+  retype.addEventListener('click', startFutureTyping);
+  back3.addEventListener('click', ()=>{
+    stopTyping();
+    hbReset();
+    showScreen('s2');
+  });
+
+  /* ===================== Particles (Screen 1) ===================== */
+  const canvas = document.getElementById('fx');
+  const ctx = canvas.getContext('2d');
+  const particles = [];
+  const emojis = ["💖","💞","✨","🌟","🫶","🤗"];
+
+  function resize(){
+    const r = sim.getBoundingClientRect();
+    canvas.width = Math.floor(r.width * devicePixelRatio);
+    canvas.height = Math.floor(r.height * devicePixelRatio);
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function spawnParticle(x=null,y=null){
+    const r = sim.getBoundingClientRect();
+    const px = (x ?? (r.width/2 + (Math.random()*180 - 90)));
+    const py = (y ?? (r.height*0.56 + (Math.random()*120 - 60)));
+
+    particles.push({
+      x:px, y:py,
+      vx:(Math.random()*1.2 - 0.6),
+      vy:(-1.2 - Math.random()*1.4),
+      a:1,
+      s:14 + Math.random()*18,
+      rot:Math.random()*Math.PI*2,
+      vr:(Math.random()*0.12 - 0.06),
+      life:70 + Math.random()*40,
+      t:emojis[Math.floor(Math.random()*emojis.length)]
+    });
+  }
+  function burst(n=16){
+    const r = sim.getBoundingClientRect();
+    for(let i=0;i<n;i++) spawnParticle(r.width/2, r.height*0.56);
+  }
+  function clearParticles(){ particles.length = 0; }
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let i=particles.length-1;i>=0;i--){
+      const p=particles[i];
+      p.x+=p.vx; p.y+=p.vy;
+      p.vy+=0.02;
+      p.a-=0.012;
+      p.rot+=p.vr;
+      p.life-=1;
+
+      if(p.a<=0 || p.life<=0 || p.y<-60){
+        particles.splice(i,1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.a);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.font = `${p.s}px Inter, system-ui`;
+      ctx.fillText(p.t, -p.s/2, p.s/2);
+      ctx.restore();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  setTimeout(()=> burst(10), 800);
+</script>
+
+<!--
+IMAGE NAME:
+Put your horizontal photo in SAME folder as this HTML:
+✅ photo.png (recommended)
+(or photo.jpg)
+-->
+</body>
+</html>
